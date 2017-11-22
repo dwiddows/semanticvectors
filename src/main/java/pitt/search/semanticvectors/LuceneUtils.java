@@ -82,7 +82,7 @@ public class LuceneUtils {
 
   /**
    * Determines which term-weighting strategy to use in indexing, 
-   * and in search if {@link FlagConfig#usetermweightsinsearch()} is set.
+   * and in search if {@link FlagConfig#usetermweightsintermsearch()} is set.
    *
    * <p>Names may be passed as command-line arguments, so underscores are avoided.
    */
@@ -93,8 +93,12 @@ public class LuceneUtils {
     IDF,
     /** Use log entropy: see {@link LuceneUtils#getEntropy}. */
     LOGENTROPY,
+    /** Use term frequency: see {@link LuceneUtils#getGlobalTermFreq} */
+    FREQ,
     /** Use square root of term frequency. */
     SQRT,
+    /** Use log of term frequency. */
+    LOGFREQ,
   }
 
   /**
@@ -297,7 +301,7 @@ public class LuceneUtils {
    * {@link FlagConfig#termweight()}.
    *
    * Used in indexing. Used in query weighting if
-   * {@link FlagConfig#usetermweightsinsearch} is true.
+   * {@link FlagConfig#usetermweightsintermsearch} is true.
    *
    * @param term whose frequency you want
    * @return Global term weight, or 1 if unavailable.
@@ -305,12 +309,17 @@ public class LuceneUtils {
   public float getGlobalTermWeight(Term term) {
     switch (flagConfig.termweight()) {
       case NONE:
-      case SQRT:
         return 1;
+      case SQRT:
+        return (float) Math.sqrt(getGlobalTermFreq(term));
       case IDF:
         return getIDF(term);
       case LOGENTROPY:
         return getEntropy(term);
+      case FREQ:
+        return (float) getGlobalTermFreq(term);
+      case LOGFREQ:
+        return (float) Math.log(getGlobalTermFreq(term));
     }
     VerbatimLogger.severe("Unrecognized termweight option: " + flagConfig.termweight()
         + ". Returning 1.\n");

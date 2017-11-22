@@ -35,7 +35,6 @@
 
 package pitt.search.semanticvectors;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.IllegalArgumentException;
 import java.nio.file.FileSystems;
@@ -49,7 +48,6 @@ import java.util.logging.Logger;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Explanation;
 import org.apache.lucene.search.IndexSearcher;
@@ -59,9 +57,6 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
-import pitt.search.semanticvectors.LuceneUtils;
-import pitt.search.semanticvectors.VectorStore;
-import pitt.search.semanticvectors.vectors.BinaryVector;
 import pitt.search.semanticvectors.vectors.BinaryVectorUtils;
 import pitt.search.semanticvectors.vectors.IncompatibleVectorsException;
 import pitt.search.semanticvectors.vectors.Vector;
@@ -247,9 +242,8 @@ abstract public class VectorSearcher {
       // seems to be good at moving excessively common terms further
       // down the results. Note that using this means that scores
       // returned are no longer just cosine similarities.
-      if (this.luceneUtils != null && flagConfig.usetermweightsinsearch()) {
-        score = score *
-            luceneUtils.getGlobalTermWeightFromString((String) testElement.getObject());
+      if (this.luceneUtils != null && flagConfig.usetermweightsintermsearch()) {
+        score = score * luceneUtils.getGlobalTermWeightFromString((String) testElement.getObject());
       }
 
       if (flagConfig.stdev()) {
@@ -1004,7 +998,7 @@ abstract public class VectorSearcher {
         // seems to be good at moving excessively common terms further
         // down the results. Note that using this means that scores
         // returned are no longer just cosine similarities.
-        if ((specialLuceneUtils != null) && specialFlagConfig.usetermweightsinsearch()) {
+        if ((specialLuceneUtils != null) && specialFlagConfig.usetermweightsintermsearch()) {
           score = score * specialLuceneUtils.getGlobalTermWeightFromString((String) testElement.getObject());
         }
 
